@@ -1,65 +1,82 @@
-# Build directories (local)
-build*/
-BuildFolders/
-builds/
-*/build/
-# CMake & qmake
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-*.pro.user
-*.qmake.stash
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
 
-# Qt Creator
-*.user
-*.user.*
-*.creator
-*.creator.user
-
-# Compiled binaries / libraries
+*~
+*.autosave
+*.a
+*.core
+*.moc
 *.o
 *.obj
+*.orig
+*.rej
 *.so
-*.dll
-*.dylib
-*.exe
-*.out
-*.a
-*.lib
-*.app
-*.pdb
-
-# Generated Qt files
-moc_*
-ui_*
-qrc_*
-*.qmlc
+*.so.*
+*_pch.h.cpp
+*_resource.rc
 *.qm
-
-# Translation outputs
-*.qm
-*.ts~
-
-# IDE & Editor
-.vscode/
-.idea/
-*.iml
-
-# OS files
+.#*
+*.*#
+core
+!core/
+tags
 .DS_Store
+.directory
+*.debug
+Makefile*
+*.prl
+*.app
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
 Thumbs.db
-desktop.ini
+*.res
+*.rc
+/.qmake.cache
+/.qmake.stash
 
-# Logs and temp
-*.log
-*.tmp
-*.bak
-*.swp
+# qtcreator generated files
+*.pro.user*
+*.qbs.user*
+CMakeLists.txt.user*
 
-# Distribution / Packaging outputs
-/dist/
-/output/
+# xemacs temporary files
+*.flc
 
-# Local-only settings folder
-/local_settings/
+# Vim temporary files
+.*.swp
+
+# Visual Studio generated files
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.sln
+*.suo
+*.vcproj
+*vcproj.*.*.user
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
+
+# MinGW generated files
+*.Debug
+*.Release
+
+# Python byte code
+*.pyc
+
+# Binaries
+# --------
+*.dll
+*.exe
+
+# Directories with generated files
+.moc/
+.obj/
+.pch/
+.rcc/
+.uic/
+/build*/
