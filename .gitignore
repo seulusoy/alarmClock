@@ -1,0 +1,65 @@
+# Build directories (local)
+build*/
+BuildFolders/
+builds/
+*/build/
+# CMake & qmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.pro.user
+*.qmake.stash
+
+# Qt Creator
+*.user
+*.user.*
+*.creator
+*.creator.user
+
+# Compiled binaries / libraries
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+*.a
+*.lib
+*.app
+*.pdb
+
+# Generated Qt files
+moc_*
+ui_*
+qrc_*
+*.qmlc
+*.qm
+
+# Translation outputs
+*.qm
+*.ts~
+
+# IDE & Editor
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Distribution / Packaging outputs
+/dist/
+/output/
+
+# Local-only settings folder
+/local_settings/
