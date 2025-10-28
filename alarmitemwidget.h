@@ -7,6 +7,13 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 
+struct Repetition {
+    bool daily = false;
+    bool weekdays = false;
+    bool weekends = false;
+    bool days[7] = {false, false, false, false, false, false, false}; // Mon → Sun
+};
+
 class AlarmItemWidget : public QWidget
 {
     Q_OBJECT
@@ -22,7 +29,9 @@ signals:
 
 private:
     QTime alarmTime;
+    Repetition repetition;
     QCheckBox *activeCheckBox;
+    QPushButton *settingsButton;
     QPushButton *deleteButton;
 };
 

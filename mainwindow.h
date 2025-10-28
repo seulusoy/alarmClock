@@ -32,7 +32,7 @@ protected:
 
 private slots:
     void on_addAlarmButton_clicked();
-    void on_alarmTimeEdit_textChanged(const QString &arg1);
+    //void on_alarmTimeEdit_textChanged(const QString &arg1);
 
     void on_alarmTimeEdit_selectionChanged();
 

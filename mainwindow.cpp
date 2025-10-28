@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(ui->addAlarmButton, &QPushButton::clicked, this, &MainWindow::on_addAlarmButton_clicked);
 
     // Make typing in alarmTimeEdit smart (auto-insert ':' after 2 digits)
-    connect(ui->alarmTimeEdit, &QLineEdit::textChanged, this, &MainWindow::on_alarmTimeEdit_textChanged);
+    //connect(ui->alarmTimeEdit, &QLineEdit::textChanged, this, &MainWindow::SmartLineEdit::onTextChanged);
 
     createTrayMenu();
     createTrayIcon();
@@ -121,6 +121,10 @@ void MainWindow::on_addAlarmButton_clicked()
 {
     QString text = ui->alarmTimeEdit->text();
 
+    if (!text.contains(":")){
+        text += ":00";
+    }
+
     QTime time = QTime::fromString(text, "H:mm");
     if (!time.isValid()) {
         QMessageBox::warning(this, "Invalid time", "Please enter time in hh:mm format.");
@@ -134,11 +138,23 @@ void MainWindow::on_addAlarmButton_clicked()
     ui->alarmListWidget->addItem(item);
     ui->alarmListWidget->setItemWidget(item, widget);
 
+    // 🔗 Connect delete signal
+    connect(widget, &AlarmItemWidget::deleteClicked, this, [=]() {
+        // Find and remove this widget’s list item
+        for (int i = 0; i < ui->alarmListWidget->count(); ++i) {
+            QListWidgetItem *it = ui->alarmListWidget->item(i);
+            if (ui->alarmListWidget->itemWidget(it) == widget) {
+                delete ui->alarmListWidget->takeItem(i);
+                break;
+            }
+        }
+    });
+
     QMessageBox::information(this, "Alarm Set",
                              QString("Alarm set for %1").arg(time.toString("hh:mm")));
 }
 
-
+/*
 void MainWindow::on_alarmTimeEdit_textChanged(const QString &arg1)
 {
     QString digits = arg1;
@@ -151,6 +167,7 @@ void MainWindow::on_alarmTimeEdit_textChanged(const QString &arg1)
     }
 
 }
+*/
 
 
 void MainWindow::on_alarmTimeEdit_selectionChanged()
