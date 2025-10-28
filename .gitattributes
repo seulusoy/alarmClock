@@ -1,0 +1,16 @@
+# Handle line endings properly across platforms
+* text=auto
+
+# Explicitly enforce LF for source files
+*.cpp text eol=lf
+*.h text eol=lf
+*.ui text eol=lf
+*.qrc text eol=lf
+*.ts text eol=lf
+
+# Binary files (never modify line endings)
+*.png binary
+*.jpg binary
+*.ico binary
+*.wav binary
+*.mp3 binary
