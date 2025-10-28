@@ -6,6 +6,7 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QLabel>
 
 struct Repetition {
     bool daily = false;
@@ -24,15 +25,28 @@ public:
     bool isActive() const;
     void setActive(bool active);
 
+    // New methods for skip-next feature
+    bool isSkipNext() const;
+    void setSkipNext(bool skip);
+
+    // New method to get repetition text for display
+    QString getRepetitionText() const;
+    const Repetition& getRepetition() const;
+
 signals:
     void deleteClicked(AlarmItemWidget *item); // emitted when delete button clicked
 
 private:
     QTime alarmTime;
     Repetition repetition;
+    bool skipNext = false;
+
     QCheckBox *activeCheckBox;
+    QLabel *timeLabel;
+    QLabel *daysLabel;
     QPushButton *settingsButton;
     QPushButton *deleteButton;
+    QPushButton *skipNextButton;
 };
 
 #endif // ALARMITEMWIDGET_H

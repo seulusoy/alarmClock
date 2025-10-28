@@ -78,3 +78,9 @@ install(TARGETS alarmClock
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(alarmClock)
 endif()
+
+add_custom_command(TARGET alarmClock POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/assets
+    $<TARGET_FILE_DIR:alarmClock>/assets
+)

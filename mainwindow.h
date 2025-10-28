@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QList>
+#include "alarmitemwidget.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -44,7 +45,7 @@ private:
     QAction *showAction;
     QAction *exitAction;
 
-    QList<QTime> alarms;   // store multiple alarm times
+    //QList<QTime> alarms;   // store multiple alarm times
 
     QTime alarmTime;       // stores the user-set alarm
     bool alarmSet = false; // is an alarm active
@@ -52,5 +53,8 @@ private:
 
     void createTrayIcon();
     void createTrayMenu();
+    QDateTime nextAlarmDateTime(AlarmItemWidget *alarm) const;
+    void sortAlarms();
+
 };
 #endif // MAINWINDOW_H

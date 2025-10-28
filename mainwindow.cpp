@@ -4,6 +4,7 @@
 #include "./ui_mainwindow.h"
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,12 +23,82 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::checkAlarms);
-    timer->start(1000); // tick every 1 second
+
+    // calculate milliseconds until next minute
+    QTime now = QTime::currentTime();
+    int msecToNextMinute = (60 - now.second()) * 1000;
+    QTimer::singleShot(msecToNextMinute, this, [this]() {
+        checkAlarms();        // check immediately at start of next minute
+        timer->start(60000);  // 60000 ms = 1 minute interval
+    });
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+QDateTime MainWindow::nextAlarmDateTime(AlarmItemWidget *alarm) const
+{
+    QTime alarmTime = alarm->getTime();
+    const Repetition &rep = alarm->getRepetition(); // might need a getter for repetition
+    bool skipNext = alarm->isSkipNext();
+
+    QDate today = QDate::currentDate();
+    QTime now = QTime::currentTime();
+
+    for (int offset = 0; offset < 14; ++offset) { // look 2 weeks ahead just in case
+        QDate d = today.addDays(offset);
+        int dayOfWeek = d.dayOfWeek(); // 1=Mon ... 7=Sun
+
+        bool dayMatches = false;
+        if (rep.daily)
+            dayMatches = true;
+        else if (rep.weekdays && dayOfWeek <= 5)
+            dayMatches = true;
+        else if (rep.weekends && dayOfWeek >= 6)
+            dayMatches = true;
+        else if (rep.days[dayOfWeek - 1])
+            dayMatches = true;
+
+        if (!dayMatches) continue;
+
+        if (offset == 0 && alarmTime <= now) continue; // skip past time today
+
+        if (skipNext) {
+            skipNext = false; // skip this one and use next matching day
+            continue;
+        }
+
+        return QDateTime(d, alarmTime);
+    }
+
+    // fallback: next day + time
+    return QDateTime(today.addDays(1), alarmTime);
+}
+
+void MainWindow::sortAlarms()
+{
+    // Create a vector of pairs: item + next datetime
+    QVector<QPair<QListWidgetItem*, QDateTime>> itemsWithTime;
+    for (int i = 0; i < ui->alarmListWidget->count(); ++i) {
+        QListWidgetItem *item = ui->alarmListWidget->item(i);
+        AlarmItemWidget *widget = qobject_cast<AlarmItemWidget*>(ui->alarmListWidget->itemWidget(item));
+        if (!widget) continue;
+
+        itemsWithTime.append(qMakePair(item, nextAlarmDateTime(widget)));
+    }
+
+    // Sort by datetime
+    std::sort(itemsWithTime.begin(), itemsWithTime.end(), [](const auto &a, const auto &b) {
+        return a.second < b.second;
+    });
+
+    // Reorder QListWidget
+    for (int i = 0; i < itemsWithTime.size(); ++i) {
+        ui->alarmListWidget->takeItem(ui->alarmListWidget->row(itemsWithTime[i].first));
+        ui->alarmListWidget->insertItem(i, itemsWithTime[i].first);
+    }
 }
 
 void MainWindow::checkAlarms()
@@ -45,10 +116,13 @@ void MainWindow::checkAlarms()
         if (current.hour() == alarmTime.hour() &&
             current.minute() == alarmTime.minute())
         {
-            // Trigger alarm
-            QMessageBox::information(this, "Alarm",
+            if (widget->isActive() && !widget->isSkipNext()) {
+                // Trigger alarm
+                QMessageBox::information(this, "Alarm",
                                      QString("Alarm for %1 triggered!").arg(alarmTime.toString("hh:mm")));
 
+            }
+            widget->setSkipNext(false); // reset after skipping
             // Set as inactive
             widget->setActive(false);
         }
@@ -149,6 +223,8 @@ void MainWindow::on_addAlarmButton_clicked()
             }
         }
     });
+    widget->daysLabel->setText(widget->getRepetitionText());
+    sortAlarms();
 
     QMessageBox::information(this, "Alarm Set",
                              QString("Alarm set for %1").arg(time.toString("hh:mm")));

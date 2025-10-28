@@ -14,9 +14,9 @@ SmartLineEdit::SmartLineEdit(QWidget *parent)
 void SmartLineEdit::focusInEvent(QFocusEvent *event)
 {
     QLineEdit::focusInEvent(event);
-    if (text() == "hh:mm") {
+    //if (text() == "hh:mm") {
         setText("");
-    }
+    //}
     setStyleSheet("color: black;");
 }
 

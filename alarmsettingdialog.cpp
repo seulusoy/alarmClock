@@ -17,6 +17,10 @@ AlarmSettingDialog::AlarmSettingDialog(QWidget *parent) :
 
     for (auto *box : boxes)
         connect(box, &QCheckBox::toggled, this, &AlarmSettingDialog::onRepeatBoxChanged);
+
+    // In AlarmSettingDialog constructor
+    connect(ui->okButton, &QPushButton::clicked, this, &QDialog::accept);
+    connect(ui->cancelButton, &QPushButton::clicked, this, &QDialog::reject);
 }
 
 AlarmSettingDialog::~AlarmSettingDialog()
