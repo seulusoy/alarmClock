@@ -54,7 +54,7 @@ private:
     void createTrayIcon();
     void createTrayMenu();
     QDateTime nextAlarmDateTime(AlarmItemWidget *alarm) const;
-    void sortAlarms();
+    //void sortAlarms();
 
 };
 #endif // MAINWINDOW_H

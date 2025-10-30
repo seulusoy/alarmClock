@@ -1,12 +1,27 @@
 #include "alarmsettingdialog.h"
 #include "ui_alarmsettingdialog.h"
 #include <QSignalBlocker>
+#include <QDir>
+#include <QDebug>
 
 AlarmSettingDialog::AlarmSettingDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AlarmSettingDialog)
 {
     ui->setupUi(this);
+
+    populateSoundComboBox();
+
+    connect(ui->soundComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, [this](int index) {
+                QString selected = ui->soundComboBox->currentText();
+                if (selected.isEmpty()) {
+                    selectedSound.clear();
+                } else {
+                    selectedSound = "assets/sounds/" + selected;
+                    qDebug() << "Selected sound:" << selectedSound;
+                }
+            });
 
     // Connect checkboxes
     QList<QCheckBox*> boxes = {
@@ -21,6 +36,19 @@ AlarmSettingDialog::AlarmSettingDialog(QWidget *parent) :
     // In AlarmSettingDialog constructor
     connect(ui->okButton, &QPushButton::clicked, this, &QDialog::accept);
     connect(ui->cancelButton, &QPushButton::clicked, this, &QDialog::reject);
+}
+
+void AlarmSettingDialog::populateSoundComboBox()
+{
+    ui->soundComboBox->clear();
+    ui->soundComboBox->addItem(""); // empty first line
+
+    QDir soundDir("assets/sounds");
+    QStringList sounds = soundDir.entryList(QStringList() << "*.wav", QDir::Files);
+    for (const QString &file : sounds)
+        ui->soundComboBox->addItem(file);
+
+    qDebug() << "Loaded sounds:" << sounds;
 }
 
 AlarmSettingDialog::~AlarmSettingDialog()

@@ -67,6 +67,9 @@ AlarmItemWidget::AlarmItemWidget(const QTime &time, QWidget *parent)
             for (int i = 0; i < 7; ++i)
                 repetition.days[i] = daysList[i];
 
+            // get sound
+            selectedSoundFile = dlg.getSelectedSound();
+
             // Update daysLabel text
             daysLabel->setText(getRepetitionText());
         }

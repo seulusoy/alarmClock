@@ -5,6 +5,9 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 #include <QDateTime>
+#include <QSoundEffect>
+#include <QUrl>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -76,7 +79,7 @@ QDateTime MainWindow::nextAlarmDateTime(AlarmItemWidget *alarm) const
     // fallback: next day + time
     return QDateTime(today.addDays(1), alarmTime);
 }
-
+/*
 void MainWindow::sortAlarms()
 {
 
@@ -99,8 +102,8 @@ void MainWindow::sortAlarms()
     });
 
     // Step 3: Remove all items from the list WITHOUT deleting them
-    /*for (int i = ui->alarmListWidget->count() - 1; i >= 0; --i)
-        ui->alarmListWidget->takeItem(i);*/
+    for (int i = ui->alarmListWidget->count() - 1; i >= 0; --i)
+        ui->alarmListWidget->takeItem(i);
 
     // Step 4: Reinsert items and reattach widgets
     for (const auto &entry : alarms) {
@@ -110,6 +113,7 @@ void MainWindow::sortAlarms()
         entry.item->setSizeHint(entry.widget->sizeHint());
     }
 }
+*/
 
 void MainWindow::checkAlarms()
 {
@@ -126,12 +130,12 @@ void MainWindow::checkAlarms()
         if (current.hour() == alarmTime.hour() &&
             current.minute() == alarmTime.minute())
         {
-            if (widget->isActive() && !widget->isSkipNext()) {
-                // Trigger alarm
-                QMessageBox::information(this, "Alarm",
-                                     QString("Alarm for %1 triggered!").arg(alarmTime.toString("hh:mm")));
 
+            if (widget->isSkipNext()){
+                widget->setSkipNext(false);
+                continue;
             }
+
             // widget->setSkipNext(false); // reset after skipping
             // Set as inactive
             if (!widget->getRepetition().daily &&
@@ -141,6 +145,32 @@ void MainWindow::checkAlarms()
                              std::end(widget->getRepetition().days),
                              [](bool d){return d; })) {
                 widget->setActive(false);
+            }
+
+            QString soundFile = widget->getSelectedSoundFile();
+
+            if (soundFile.isEmpty()) {
+                // 🔔 No sound selected → only show message
+                QMessageBox::information(this, "Alarm",
+                                         QString("Alarm for %1 triggered!")
+                                             .arg(alarmTime.toString("hh:mm")));
+            } else {
+                // 🎵 Play selected sound
+                QSoundEffect *effect = new QSoundEffect(this);
+                effect->setSource(QUrl::fromLocalFile(soundFile));
+                effect->setLoopCount(QSoundEffect::Infinite); // or 1 if you want single play
+                effect->setVolume(0.8f);
+                effect->play();
+
+                // Optional message showing which sound is playing
+                QMessageBox::information(this, "Alarm",
+                                         QString("Alarm for %1 triggered!\nPlaying: %2")
+                                             .arg(alarmTime.toString("hh:mm"))
+                                             .arg(QFileInfo(soundFile).fileName()));
+
+                // Stop the sound when the message box is closed
+                effect->stop();
+                effect->deleteLater();
             }
         }
     }
@@ -243,7 +273,7 @@ void MainWindow::on_addAlarmButton_clicked()
     widget->updateDaysLabel();
 
     // Step 5: Sort all alarms
-    sortAlarms();
+    //sortAlarms();
 
     // Step 6: Notify user
     QMessageBox::information(this, "Alarm Set",

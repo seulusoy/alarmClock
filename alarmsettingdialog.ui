@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>531</width>
+    <height>346</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>40</y>
+     <x>270</x>
+     <y>30</y>
      <width>95</width>
      <height>88</height>
     </rect>
@@ -46,7 +46,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -107,11 +107,11 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>230</x>
-     <y>170</y>
+     <x>270</x>
+     <y>180</y>
      <width>95</width>
      <height>67</height>
     </rect>
@@ -132,6 +132,16 @@
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QComboBox" name="soundComboBox">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>130</y>
+     <width>171</width>
+     <height>26</height>
+    </rect>
+   </property>
   </widget>
  </widget>
  <resources/>

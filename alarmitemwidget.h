@@ -35,6 +35,8 @@ public:
     QString getRepetitionText() const;
     const Repetition& getRepetition() const;
 
+    QString getSelectedSoundFile(){return selectedSoundFile;}
+
 signals:
     void deleteClicked(AlarmItemWidget *item); // emitted when delete button clicked
 
@@ -49,6 +51,8 @@ private:
     QPushButton *settingsButton;
     QPushButton *deleteButton;
     QPushButton *skipNextButton;
+
+    QString selectedSoundFile;
 };
 
 #endif // ALARMITEMWIDGET_H
