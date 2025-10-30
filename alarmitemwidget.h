@@ -29,6 +29,8 @@ public:
     bool isSkipNext() const;
     void setSkipNext(bool skip);
 
+    void updateDaysLabel();
+
     // New method to get repetition text for display
     QString getRepetitionText() const;
     const Repetition& getRepetition() const;

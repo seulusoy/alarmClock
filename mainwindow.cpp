@@ -79,25 +79,35 @@ QDateTime MainWindow::nextAlarmDateTime(AlarmItemWidget *alarm) const
 
 void MainWindow::sortAlarms()
 {
-    // Create a vector of pairs: item + next datetime
-    QVector<QPair<QListWidgetItem*, QDateTime>> itemsWithTime;
-    for (int i = 0; i < ui->alarmListWidget->count(); ++i) {
-        QListWidgetItem *item = ui->alarmListWidget->item(i);
-        AlarmItemWidget *widget = qobject_cast<AlarmItemWidget*>(ui->alarmListWidget->itemWidget(item));
-        if (!widget) continue;
 
-        itemsWithTime.append(qMakePair(item, nextAlarmDateTime(widget)));
+    struct AlarmEntry {
+        QListWidgetItem* item;
+        AlarmItemWidget* widget;
+        QDateTime nextTime;
+    };
+    QVector<AlarmEntry> alarms;
+
+    while(ui->alarmListWidget->count()>0){
+        QListWidgetItem *item = ui->alarmListWidget->takeItem(0);
+        AlarmItemWidget* widget = qobject_cast<AlarmItemWidget*>(ui->alarmListWidget->itemWidget(item));
+        alarms.append({item, widget, nextAlarmDateTime(widget)});
     }
 
-    // Sort by datetime
-    std::sort(itemsWithTime.begin(), itemsWithTime.end(), [](const auto &a, const auto &b) {
-        return a.second < b.second;
+    // Step 2: Sort by next alarm time
+    std::sort(alarms.begin(), alarms.end(), [](const AlarmEntry &a, const AlarmEntry &b) {
+        return a.nextTime < b.nextTime;
     });
 
-    // Reorder QListWidget
-    for (int i = 0; i < itemsWithTime.size(); ++i) {
-        ui->alarmListWidget->takeItem(ui->alarmListWidget->row(itemsWithTime[i].first));
-        ui->alarmListWidget->insertItem(i, itemsWithTime[i].first);
+    // Step 3: Remove all items from the list WITHOUT deleting them
+    /*for (int i = ui->alarmListWidget->count() - 1; i >= 0; --i)
+        ui->alarmListWidget->takeItem(i);*/
+
+    // Step 4: Reinsert items and reattach widgets
+    for (const auto &entry : alarms) {
+        AlarmItemWidget* widget = new AlarmItemWidget(time, nullptr);
+        ui->alarmListWidget->addItem(entry.item);
+        ui->alarmListWidget->setItemWidget(entry.item, entry.widget);
+        entry.item->setSizeHint(entry.widget->sizeHint());
     }
 }
 
@@ -122,9 +132,16 @@ void MainWindow::checkAlarms()
                                      QString("Alarm for %1 triggered!").arg(alarmTime.toString("hh:mm")));
 
             }
-            widget->setSkipNext(false); // reset after skipping
+            // widget->setSkipNext(false); // reset after skipping
             // Set as inactive
-            widget->setActive(false);
+            if (!widget->getRepetition().daily &&
+                !widget->getRepetition().weekdays &&
+                !widget->getRepetition().weekends &&
+                std::none_of(std::begin(widget->getRepetition().days),
+                             std::end(widget->getRepetition().days),
+                             [](bool d){return d; })) {
+                widget->setActive(false);
+            }
         }
     }
 }
@@ -193,41 +210,47 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_addAlarmButton_clicked()
 {
-    QString text = ui->alarmTimeEdit->text();
-
-    if (!text.contains(":")){
-        text += ":00";
-    }
+    QString text = ui->alarmTimeEdit->text().trimmed();
+    if (!text.contains(":")) text += ":00";
 
     QTime time = QTime::fromString(text, "H:mm");
     if (!time.isValid()) {
-        QMessageBox::warning(this, "Invalid time", "Please enter time in hh:mm format.");
+        QMessageBox::warning(this, "Invalid Time", "Please enter time in hh:mm format.");
         return;
     }
 
-    // Add new alarm item
-    QListWidgetItem *item = new QListWidgetItem(ui->alarmListWidget);
-    AlarmItemWidget *widget = new AlarmItemWidget(time);
+    // Step 1: Create widget with no parent (list will take ownership)
+    AlarmItemWidget* widget = new AlarmItemWidget(time, nullptr);
+
+    // Step 2: Create list item
+    QListWidgetItem* item = new QListWidgetItem(ui->alarmListWidget);
     item->setSizeHint(widget->sizeHint());
     ui->alarmListWidget->addItem(item);
     ui->alarmListWidget->setItemWidget(item, widget);
 
-    // 🔗 Connect delete signal
-    connect(widget, &AlarmItemWidget::deleteClicked, this, [=]() {
-        // Find and remove this widget’s list item
+    // Step 3: Connect delete button
+    connect(widget, &AlarmItemWidget::deleteClicked, this, [this, widget]() {
         for (int i = 0; i < ui->alarmListWidget->count(); ++i) {
-            QListWidgetItem *it = ui->alarmListWidget->item(i);
+            QListWidgetItem* it = ui->alarmListWidget->item(i);
             if (ui->alarmListWidget->itemWidget(it) == widget) {
                 delete ui->alarmListWidget->takeItem(i);
                 break;
             }
         }
     });
-    widget->daysLabel->setText(widget->getRepetitionText());
+
+    // Step 4: Update repetition label
+    widget->updateDaysLabel();
+
+    // Step 5: Sort all alarms
     sortAlarms();
 
+    // Step 6: Notify user
     QMessageBox::information(this, "Alarm Set",
                              QString("Alarm set for %1").arg(time.toString("hh:mm")));
+
+    // Step 7: Clear input
+    ui->alarmTimeEdit->clear();
 }
 
 /*

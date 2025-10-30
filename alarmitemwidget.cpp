@@ -102,6 +102,10 @@ void AlarmItemWidget::setSkipNext(bool skip) {
     if(skipNextButton) skipNextButton->setText(skip ? "Ring Next" : "Skip Next");
 }
 
+void AlarmItemWidget::updateDaysLabel(){
+    daysLabel->setText(getRepetitionText());
+}
+
 QString AlarmItemWidget::getRepetitionText() const
 {
     // Determine repetition pattern first
