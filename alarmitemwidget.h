@@ -30,6 +30,7 @@ public:
     void setSkipNext(bool skip);
 
     void updateDaysLabel();
+    void updateTimeLabel();
 
     // New method to get repetition text for display
     QString getRepetitionText() const;

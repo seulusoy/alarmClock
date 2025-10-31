@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void checkAlarms();
+    void checkAlarms(bool forceTrigger = false);
 
 protected:
     void closeEvent(QCloseEvent *event) override; // to minimize instead of closing

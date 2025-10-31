@@ -109,6 +109,35 @@ void AlarmItemWidget::updateDaysLabel(){
     daysLabel->setText(getRepetitionText());
 }
 
+void AlarmItemWidget::updateTimeLabel()
+{
+    QDateTime nextTrigger;
+
+    // Find the next alarm time using MainWindow’s logic or a local equivalent
+    QTime alarmTime = getTime();
+    QDate today = QDate::currentDate();
+    QTime now = QTime::currentTime();
+
+    if (alarmTime <= now)
+        nextTrigger = QDateTime(today.addDays(1), alarmTime); // tomorrow
+    else
+        nextTrigger = QDateTime(today, alarmTime);            // later today
+
+    // 🕒 Optional: if you already have repetition logic, use it instead of this simplified version
+
+    QString dayLabel;
+    if (nextTrigger.date() == today)
+        dayLabel = "Today";
+    else if (nextTrigger.date() == today.addDays(1))
+        dayLabel = "Tomorrow";
+    else
+        dayLabel = nextTrigger.date().toString("dddd, dd MMM");
+
+    timeLabel->setText(
+        QString("%1").arg(dayLabel)
+        );
+}
+
 QString AlarmItemWidget::getRepetitionText() const
 {
     // Determine repetition pattern first

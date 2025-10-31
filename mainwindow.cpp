@@ -25,7 +25,11 @@ MainWindow::MainWindow(QWidget *parent)
     createTrayIcon();
 
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MainWindow::checkAlarms);
+    //connect(timer, &QTimer::timeout, this, &MainWindow::checkAlarms());
+
+    connect(timer, &QTimer::timeout, this, [this]() {
+        checkAlarms();
+    });
 
     // calculate milliseconds until next minute
     QTime now = QTime::currentTime();
@@ -33,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent)
     QTimer::singleShot(msecToNextMinute, this, [this]() {
         checkAlarms();        // check immediately at start of next minute
         timer->start(60000);  // 60000 ms = 1 minute interval
+    });
+
+    connect(ui->triggerAllButton, &QPushButton::clicked, this, [this]() {
+        checkAlarms(true);
     });
 }
 
@@ -115,7 +123,7 @@ void MainWindow::sortAlarms()
 }
 */
 
-void MainWindow::checkAlarms()
+void MainWindow::checkAlarms(bool forceTrigger)
 {
     QTime current = QTime::currentTime();
 
@@ -127,9 +135,12 @@ void MainWindow::checkAlarms()
         if (!widget->isActive()) continue;
 
         QTime alarmTime = widget->getTime();
-        if (current.hour() == alarmTime.hour() &&
-            current.minute() == alarmTime.minute())
-        {
+
+        bool shouldTrigger =
+            forceTrigger ||
+            (current.hour() == alarmTime.hour() && current.minute() == alarmTime.minute());
+
+        if (shouldTrigger) {
 
             if (widget->isSkipNext()){
                 widget->setSkipNext(false);
@@ -171,6 +182,9 @@ void MainWindow::checkAlarms()
                 // Stop the sound when the message box is closed
                 effect->stop();
                 effect->deleteLater();
+            }
+            if (forceTrigger){
+                forceTrigger = false;
             }
         }
     }
